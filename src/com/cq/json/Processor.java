@@ -4,31 +4,80 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.text.Keymap;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Processor {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String repoPath = "";
+		String repoPath = "repo.xml";
 		String excelPath = "testcase.xlsm";
 		
 		ExcelAdapter ea = new ExcelAdapter();
 		File excelFile = new File(excelPath);
+		File repoFile = new File(repoPath);
+
 		try {
 			Sheet sheet = ea.getSheet(excelFile, "Instructions");
 			Row headerRow = sheet.getRow(0);
-			Cell cell = headerRow.getCell(1);
-			String content = getCellValue(cell);
-			String orgContent = cell.getStringCellValue();
-			System.out.println(content);
-			System.out.println(orgContent);
-			System.out.println(cell.getCellType());
+			int nFirstRow = sheet.getFirstRowNum();
+			int nLastRow = sheet.getLastRowNum();
+			
+			int nFirstCol = headerRow.getFirstCellNum();
+			int nLastCol = headerRow.getLastCellNum();
+			
+			System.out.println(String.format("%d:%d", nFirstRow, nLastRow));
+			Cell specialCell = sheet.getRow(2).getCell(5);
+			String specialContent = getCellValue(specialCell);
+			System.out.println(specialContent.length());
+			System.out.println(String.format("The Cell content:%s, Cell Type:%d", getCellValue(specialCell), specialCell.getCellType()));
+			int n = 0;
+			
+			for(Row r : sheet){
+				++n;
+				if (1 == n)
+					continue;
+				
+				System.out.println(String.format("第%d行输出:", n));
+				System.out.println(String.format("row count:%d - %d", r.getFirstCellNum(), r.getLastCellNum()));
+				for(int i = nFirstCol; i < nLastCol; ++i){
+					Cell c = r.getCell(i);
+					if (null == c)
+						System.out.print("E - ");
+					else
+						System.out.print(c.getCellType() + " - ");
+				}
+
+				System.out.println("");
+				for(int i = nFirstCol; i < nLastCol; ++i){
+					Cell c = r.getCell(i);
+					if (null == c){
+						System.out.print("!!EMPTY!! - ");
+					}
+					else{
+						String cellContent = getCellValue(c);
+						System.out.print((cellContent.isEmpty() ? "!!EMPTY!!" : cellContent) + " - ");
+					}
+				}
+				System.out.println("");
+			}
+			JSONArray sheetJSON = FileJSONConvertor.excel2JSON(excelFile);
+			System.out.println("");
+			System.out.println(sheetJSON);
+			
+			JSONObject repoJSON = FileJSONConvertor.repo2JSON(repoFile);
+			System.out.println(repoJSON);
 			
 		} catch (InvalidFormatException e) {
 			// TODO Auto-generated catch block
