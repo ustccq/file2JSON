@@ -4,10 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.text.Keymap;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,7 +20,7 @@ public class Processor {
 		String repoPath = "repo.xml";
 		String excelPath = "testcase.xlsm";
 		
-		ExcelAdapter ea = new ExcelAdapter();
+		ExcelAdapter ea = ExcelAdapter.getInstance();
 		File excelFile = new File(excelPath);
 		File repoFile = new File(repoPath);
 
@@ -72,7 +68,7 @@ public class Processor {
 				}
 				System.out.println("");
 			}
-			JSONArray sheetJSON = FileJSONConvertor.excel2JSON(excelFile);
+			JSONArray sheetJSON = FileJSONConvertor.excelSheet2JSON(excelFile, null);
 			System.out.println("");
 			System.out.println(sheetJSON);
 			

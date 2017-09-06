@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -112,12 +113,107 @@ public class FileJSONConvertor {
 		return new JSONObject(repoMap);
 	}
 	
-	public static JSONArray excel2JSON(File excelFile){
-		String sheetName = "Instructions";
-		ExcelAdapter ea = new ExcelAdapter();
+	private static JSONObject columnDataContainer2JSON(ColumnDataContainer cdc){
+		JSONObject json = new JSONObject();
+		
+		JSONObject element = new JSONObject(cdc.getCellNameElementTypeMap());
+		JSONObject index = new JSONObject(cdc.getCellNameIndexMap());
+		JSONObject locatorString = new JSONObject(cdc.getCellNameLocatorStringMap());
+		JSONObject locatorType = new JSONObject(cdc.getCellNameLocatorTypeMap());
+		
+		//TODO
+		json.put("element", element);
+		json.put("index", index);
+		json.put("locator-value", locatorString);
+		json.put("locator-type", locatorType);
+		
+		return json;
+	}
+	
+	public static JSONObject repoTablePart2JSON(File repoFile){
+		RepoXMLLoader loader = new RepoXMLLoader(new RepoLoader());
+		JSONObject tableDescriptors = new JSONObject();
+		try {
+			Map<String, TableDataContainer> tableRepo = loader.loadTableXML(repoFile.toURI().toURL());
+//			Map<String, JSONObject> middleTableRepo = new HashMap<String, JSONObject>();
+			
+			Iterator<Entry<String, TableDataContainer>> iter = tableRepo.entrySet().iterator();
+			Entry<String, TableDataContainer> entry;
+			while (iter.hasNext()){
+				entry = iter.next();
+				TableDataContainer container = entry.getValue();
+				
+				JSONObject tableDataObject = new JSONObject();
+				
+				JSONObject footer = transferFooter(container);
+				tableDataObject.put("footer", footer);
+				
+				JSONObject header = transferHeader(container);
+				tableDataObject.put("header", header);
+				
+				ColumnDataContainer cdc = container.getBodyColumnData();
+				JSONObject columns = columnDataContainer2JSON(cdc);
+				tableDataObject.put("columns", columns);
+				
+				tableDataObject.put("name", container.getName());
+				tableDataObject.put("locator-type", container.getLocatorType());
+				tableDataObject.put("locator-value", container.getLocatorValue());
+				tableDataObject.put("row-locator-type", container.getRowLocatorType());
+				tableDataObject.put("row-locator-value", container.getRowLocatorValue());
+
+				tableDescriptors.put(entry.getKey(), tableDataObject);
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return tableDescriptors;
+	}
+
+	private static JSONObject transferHeader(TableDataContainer container) {
+		ColumnDataContainer cdc = container.getHeaderColumnData();
+		JSONObject columns = columnDataContainer2JSON(cdc);			
+		String type = container.getHeaderLocatorType();
+		String value = container.getHeaderLocatorValue();
+		JSONObject header = new JSONObject();
+		header.put("locator-type", type);
+		header.put("locator-value", value);
+		header.put("columns", columns);
+		return header;
+	}
+
+	private static JSONObject transferFooter(TableDataContainer container) {
+		ColumnDataContainer cdc = container.getFooterColumnData();
+		JSONObject columns = columnDataContainer2JSON(cdc);
+		String type = container.getFooterLocatorType();
+		String value = container.getFooterLocatorValue();
+		JSONObject footer = new JSONObject();
+		footer.put("locator-type", type);
+		footer.put("locator-value", value);
+		footer.put("columns", columns);
+		return footer;
+	}
+	
+	public static JSONObject excel2JSON(File excelFile){
+		ExcelAdapter ea = ExcelAdapter.getInstance();
+		JSONObject json = new JSONObject();
+		try {
+			List<Sheet> sheets = ea.getSheets(excelFile);
+			
+			for(Sheet sheet : sheets){
+				json.append(sheet.getSheetName(), sheet);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return json;
+	}
+	
+	public static JSONArray excelSheet2JSON(Sheet sheet){
 		JSONArray sheetJSON = new JSONArray();
 		try {
-			Sheet sheet = ea.getSheet(excelFile, sheetName);
 			Row headerRow = sheet.getRow(0);
 
 			int nFirstCol = headerRow.getFirstCellNum();
@@ -153,6 +249,22 @@ public class FileJSONConvertor {
 				sheetJSON.put(rowJSON);
 			}
 			
+		}catch(Exception exception){
+			exception.printStackTrace();
+		}
+		
+		return sheetJSON;
+	}
+	
+	public static JSONArray excelSheet2JSON(File excelFile, String shtName){
+		
+		String sheetName = (null == shtName || shtName.isEmpty()) ? "Instructions" : shtName;
+		ExcelAdapter ea = ExcelAdapter.getInstance();
+		JSONArray sheetJSON = new JSONArray();
+		try {
+			Sheet sheet = ea.getSheet(excelFile, sheetName);
+			if (null != sheet)
+				sheetJSON = excelSheet2JSON(sheet);
 		} catch (InvalidFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

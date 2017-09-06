@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,6 +20,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
+
+import com.graphbuilder.struc.LinkedList;
 
 
 /*
@@ -30,6 +33,18 @@ import org.apache.poi.ss.util.CellReference;
  * Copyright notice
  */
 public class ExcelAdapter {
+	
+	private static ExcelAdapter instance;
+	public static synchronized ExcelAdapter getInstance(){
+		if (null == instance)
+			instance = new ExcelAdapter();
+		
+		return instance;
+	}
+	
+	private ExcelAdapter() {
+		
+	}
 			    	
 	public String convertRowColnumToRefernce(int RowNum, int ColNum){
 		
@@ -125,6 +140,27 @@ public class ExcelAdapter {
 			sheet = workbook.getSheet(sheetName);
 		}		
 		return sheet;				 		
+	}
+	
+	public List<Sheet> getSheets(File excelFile) throws InvalidFormatException, IOException{							
+		FileInputStream fin = null;		
+		Workbook workbook = null;
+		
+		List<Sheet> sheets = new ArrayList<Sheet>();
+		if (!excelFile.exists()) {
+			throw new FileNotFoundException();
+		}else{
+			fin = new FileInputStream(excelFile);
+			workbook = WorkbookFactory.create(fin);
+			
+			Iterator<Sheet> iter = workbook.sheetIterator();
+			while(iter.hasNext()){
+				Sheet sheet = iter.next();
+				if (null != sheet && sheet.getLastRowNum() > 0)
+				sheets.add(sheet);
+			}			
+		}		
+		return sheets;				 		
 	}
 	
 	public Cell getCell(Sheet sheet, String searchCellValue, boolean enableRegex) throws InvalidFormatException, IOException{							
