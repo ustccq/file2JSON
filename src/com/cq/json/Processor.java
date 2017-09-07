@@ -13,19 +13,29 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class Processor {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String repoPath = "repo.xml";
-		String excelPath = "testcase.xlsm";
+		String repoPath = "repo.xml";//"repoTable.xml";
+		String excelPath = "F:\\_testcase\\testcaseTable.xlsm";
 		
 		ExcelAdapter ea = ExcelAdapter.getInstance();
 		File excelFile = new File(excelPath);
 		File repoFile = new File(repoPath);
 
 		try {
+//			JSONObject tables = FileJSONConvertor.repoTablePart2JSON(repoFile);
+//			if (true){
+//				System.out.println(tables);
+//				System.exit(0);
+//			}
 			Sheet sheet = ea.getSheet(excelFile, "Instructions");
+			System.out.println(FileJSONConvertor.excel2JSON(excelFile));
+			if (true)
+				return;
+			System.out.println(FileJSONConvertor.excelSheet2JSON(excelFile, null));
 			Row headerRow = sheet.getRow(0);
 			int nFirstRow = sheet.getFirstRowNum();
 			int nLastRow = sheet.getLastRowNum();

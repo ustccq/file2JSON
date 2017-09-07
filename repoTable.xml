@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<properties>
+	</properties>
+	<projects>
+		<project name='demo'>
+			<applications>
+				<application name='outlook'>
+					<sections>
+						<section name="owa">
+							<element name='login' type='button' locator-type='css' locator-value='div.buttonLargeBlue'/>
+						</section>
+						<section name="login">
+							<element name='username' type='textbox' locator-type='name' locator-value='loginfmt'/>
+							<element name='mainframe' type='frame' locator-type='id' locator-value='iframeMain'/>
+							<element name='password' type='textbox' locator-type='name' locator-value='passwd'/>
+							<element name='next' type='button' locator-type='id' locator-value='idSIButton9' />
+							<element name='login' type='button' locator-type='id' locator-value='btnLogin' />
+							<element name='saveLogin' type='checkbox' locator-type='id' locator-value='idChkBx_PWD_KMSI0Pwd' />
+							<element name='testEle' type='textbox' locator-type='id' locator-value='idChkBx_PWD_KMSI0Pwd' method='HelloWorld'/>
+
+						</section>
+					</sections>
+				</application>
+				<application name='demotable'>
+					<sections>
+						<section name="tableweb">
+							<table name='w3table' locator-type='xpath' type='table' locator-value='//table[@class=&apos;dataintable&apos;]'>
+								<row locator-type='tag' locator-value='tr'/>
+								<header locator-type='tag' locator-value='tr'>
+									<column name='properties' type='displaytext' locator-type='tag' locator-value='th' index='0'/>
+									<column name='value' type='displaytext' locator-type='tag' locator-value='th' index='1'/>
+									<column name='discription' type='displaytext' locator-type='tag' locator-value='th' index='2'/>
+								</header>
+								<footer>
+								</footer>
+								<column name='properties' type='link' locator-type='tag' locator-value='td' index='0' />
+								<column name='value' type='text' locator-type='tag' locator-value='td' index='1' />
+								<column name='discription' type='text' locator-type='tag' locator-value='td' index='2' />
+							</table>
+						</section>
+					</sections>
+				</application>
+			</applications>
+		</project>
+	</projects>
+</root>

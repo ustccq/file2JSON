@@ -202,7 +202,7 @@ public class FileJSONConvertor {
 			List<Sheet> sheets = ea.getSheets(excelFile);
 			
 			for(Sheet sheet : sheets){
-				json.append(sheet.getSheetName(), sheet);
+				json.append(sheet.getSheetName(), excelSheet2JSON(sheet));
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
